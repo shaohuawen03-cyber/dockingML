@@ -63,8 +63,8 @@ class AutoRunMD:
         return self
 
     def md(self, ingro, out, mdp="npt.mdp", intop="topol",
-           nt=4, gpu_ids="1", restraints=False,
-           continue_run=False, nsteps=1000, temperature=300,
+           nt=4, gpu_ids="", restraints=False,
+           continue_run=False, nsteps=100, temperature=300,
            groups=['Water', 'non-Water'], mode="md"):
         """
         Run MD simulation with this function.
@@ -86,8 +86,8 @@ class AutoRunMD:
             The topology file for MD simulation
         nt : int, default is 4.
             Number of CPU cores for simulations.
-        gpu_ids : str, default is "1"
-            The GPU ids, comma seperated without space
+        gpu_ids : str, default is ""
+            Optional GPU ids; CPU execution is the default.
         restraints : bool, default is False
             Apply restraints to simulation not.
         Returns
@@ -165,7 +165,7 @@ if __name__ == "__main__":
                              "Default is topology.top")
     parser.add_argument("-o", type=str, default="md_1",
                         help="Output file name, optional. \n")
-    parser.add_argument("-nsteps", type=int, default=500,
+    parser.add_argument("-nsteps", type=int, default=100,
                         help="Input, int. "
                              "The number of steps for simulations.")
     parser.add_argument("-t", type=float, default=300, help="Input, optional. Temperature, default is 300 (K).")

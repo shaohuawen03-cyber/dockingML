@@ -110,7 +110,7 @@ class MDPEditor:
                 "title": "NVT Equilibration",
                 "integrator": "md",
                 "dt": "0.002",
-                "nsteps": "250000",  # 500 ps
+                "nsteps": "100",  # short, safe GUI default
                 "nstxout-compressed": "5000",
                 "nstenergy": "5000",
                 "nstlog": "5000",
@@ -138,7 +138,7 @@ class MDPEditor:
                 "title": "NPT Equilibration",
                 "integrator": "md",
                 "dt": "0.002",
-                "nsteps": "500000",  # 1 ns
+                "nsteps": "100",  # short, safe GUI default
                 "nstxout-compressed": "5000",
                 "nstenergy": "5000",
                 "nstlog": "5000",
@@ -168,7 +168,7 @@ class MDPEditor:
                 "title": "Production MD Simulation",
                 "integrator": "md",
                 "dt": "0.002",
-                "nsteps": "5000000",  # 10 ns
+                "nsteps": "100",  # short, safe GUI default
                 "nstxout-compressed": "5000",
                 "nstenergy": "5000",
                 "nstlog": "5000",

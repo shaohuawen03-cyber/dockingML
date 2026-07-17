@@ -1,0 +1,34 @@
+; Production NVT equilibration - 100 ps (restrained)
+; Used for: protein and complex equilibration before production
+integrator               = md
+dt                       = 0.002         ; ps
+nsteps                   = 50000         ; 100 ps
+nstxout                  = 0
+nstvout                  = 0
+nstfout                  = 0
+nstenergy                = 500
+nstlog                   = 500
+continuation             = no
+constraint_algorithm     = lincs
+constraints              = h-bonds
+lincs_iter               = 2
+lincs_order              = 4
+cutoff-scheme            = Verlet
+nstlist                  = 20
+ns_type                  = grid
+rlist                    = 1.0
+rcoulomb                 = 1.0
+pme_order                = 4
+fourierspacing           = 0.12
+DispCorr                 = EnerPres
+Tcoupl                   = V-rescale
+tc-grps                  = Protein_Ligand Water_and_ions
+tau_t                    = 0.1        0.1
+ref_t                    = 300        300
+Pcoupl                   = no
+gen_vel                  = yes
+gen_temp                 = 300
+gen_seed                 = -1
+define                   = -DPOSRES -DPOSRES_LIG
+nstcomm                  = 100
+comm-mode                = Linear

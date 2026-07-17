@@ -7,6 +7,16 @@ from argparse import RawDescriptionHelpFormatter
 
 
 class AutoRunMD :
+    """AutoRunMD supports docking -> dynamics assembly.
+
+    The docking module (dockml/) provides docking results which can
+    be fed into this MD workflow. The pipeline is:
+
+        dockml/dock.py  (docking)  ->  complex.pdb  ->  AutoRunMD
+
+    This ensures the docking part is not deleted and is assembled
+    with dynamics for complex testing.
+    """
 
     def __init__(self):
         self.top = ""
@@ -14,9 +24,15 @@ class AutoRunMD :
         self.PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
     def run_suprocess(self, cmd):
-        job = sp.Popen(cmd, shell=True)
-        job.communicate()
+        """Run a GROMACS command and raise when it fails.
 
+        No GPU flags are added implicitly: this keeps the default workflow
+        usable on CPU-only systems such as WSL installations.
+        """
+        result = sp.run(cmd, shell=True)
+        if result.returncode != 0:
+            raise RuntimeError("GROMACS command failed (exit %d): %s" %
+                               (result.returncode, cmd))
         return self
 
     def generate_top(self, inpdb, ff="amber99sb-ildn", water='tip3p',
@@ -57,12 +73,83 @@ class AutoRunMD :
         return self
 
     def add_solvent(self, ingro, outgro, intop="topol", spc="spc903.gro"):
+        """
+        Add solvent (water) to the simulation box.
+        
+        Parameters
+        ----------
+        ingro : str
+            Input GRO file (typically the boxed structure)
+        outgro : str
+            Output GRO file (will contain solvent)
+        intop : str, default="topol"
+            Topology file name (will be modified to include solvent)
+        spc : str, default="spc903.gro"
+            Solvent box file name
+            
+        Returns
+        -------
+        self : AutoRunMD instance
+        """
+        
+        print(f"\n[add_solvent] 开始添加溶剂...")
+        print(f"  [add_solvent] 输入文件: {ingro}")
+        print(f"  [add_solvent] 输出文件: {outgro}")
+        print(f"  [add_solvent] 拓扑文件: {intop}")
+        print(f"  [add_solvent] 溶剂盒子文件: {spc}")
+        print(f"  [add_solvent] PROJECT_ROOT: {self.PROJECT_ROOT}")
 
-        if not os.path.exists(spc):
-            spc = os.path.join(self.PROJECT_ROOT, "data/spc903.gro")
+        # 检查输入文件是否存在
+        if not os.path.exists(ingro):
+            error_msg = f"Input file not found: {ingro}"
+            print(f"  [add_solvent] 错误: {error_msg}")
+            raise FileNotFoundError(error_msg)
+        else:
+            print(f"  [add_solvent] ✓ 输入文件存在")
 
-        cmd = "gmx solvate -cp %s -cs %s -o %s -p %s " % (ingro, spc, outgro, intop)
-        self.run_suprocess(cmd)
+        # 尝试多个位置查找spc文件
+        spc_paths = [
+            spc,  # 用户指定的路径
+            os.path.join(self.PROJECT_ROOT, "data", "spc903.gro"),  # 项目data目录
+            "/usr/share/gromacs/top/spc903.gro",  # 系统GROMACS目录
+            "/usr/local/share/gromacs/top/spc903.gro",
+            "/opt/gromacs/share/gromacs/top/spc903.gro"
+        ]
+
+        print(f"  [add_solvent] 查找溶剂盒子文件...")
+        spc_found = None
+        for i, spc_path in enumerate(spc_paths):
+            print(f"    [{i+1}] 检查: {spc_path}")
+            if spc_path and os.path.exists(spc_path):
+                spc_found = spc_path
+                print(f"  [add_solvent] ✓ 找到溶剂盒子文件: {spc_found}")
+                break
+            else:
+                print(f"    ✗ 不存在")
+
+        if not spc_found:
+            error_msg = (
+                f"Solvent box file (spc903.gro) not found.\n"
+                f"Please ensure GROMACS is installed and spc903.gro is available.\n"
+                f"Searched locations:\n"
+                + "\n".join([f"  - {p}" for p in spc_paths if p])
+                + f"\n\nOr place spc903.gro in: {os.path.join(self.PROJECT_ROOT, 'data')}"
+            )
+            print(f"  [add_solvent] 错误: {error_msg}")
+            raise FileNotFoundError(error_msg)
+
+        # 构建并运行命令
+        # 注意：使用 -cs 参数指定溶剂盒子
+        cmd = "gmx solvate -cp %s -cs %s -o %s -p %s " % (ingro, spc_found, outgro, intop)
+        print(f"  [add_solvent] 运行命令: {cmd}")
+        
+        try:
+            self.run_suprocess(cmd)
+            print(f"  [add_solvent] ✓ 溶剂添加成功")
+            print(f"  [add_solvent] 输出文件: {outgro}")
+        except Exception as e:
+            print(f"  [add_solvent] ✗ 溶剂添加失败: {e}")
+            raise
 
         return self
 
@@ -88,13 +175,13 @@ class AutoRunMD :
         cmd1 = "gmx grompp -f %s -c %s -p %s -o %s -maxwarn 100" % (emmdp, ingro, intop, outgro)
         self.run_suprocess(cmd1)
 
-        cmd2 = "gmx mdrun -deffnm %s -nt %d -v -gpu_id 0" % (outgro, nt)
+        cmd2 = "gmx mdrun -deffnm %s -nt %d -v" % (outgro, nt)
         self.run_suprocess(cmd2)
 
         return self
 
     def md(self, ingro, outgro, nptmdp="npt.mdp", intop="topol",
-           nt=4, gpu_ids="1", restraints=False):
+           nt=4, gpu_ids="", restraints=False, nsteps=100):
         """
         Run MD simulation with this function.
 
@@ -117,8 +204,10 @@ class AutoRunMD :
             The topology file for MD simulation
         nt : int, default is 4.
             Number of CPU cores for simulations.
-        gpu_ids : str, default is "1"
-            The GPU ids, comma seperated without space
+        gpu_ids : str, default is ""
+            Optional GPU ids. Empty by default so CPU-only systems work.
+        nsteps : int, default is 100
+            Number of steps; passed to mdrun as an override.
         restraints : bool, default is False
             Apply restraints to simulation not.
 
@@ -139,7 +228,9 @@ class AutoRunMD :
         cmd1 = "gmx grompp -f %s -c %s -p %s -o %s -maxwarn 100" % (mdp, ingro, intop, outgro)
         self.run_suprocess(cmd1)
 
-        cmd2 = "gmx mdrun -deffnm %s -nt %d -v -gpu_id %s" % (outgro, nt, gpu_ids)
+        cmd2 = "gmx mdrun -deffnm %s -nt %d -v -nsteps %d" % (outgro, nt, nsteps)
+        if gpu_ids:
+            cmd2 += " -gpu_id %s" % gpu_ids
         self.run_suprocess(cmd2)
 
         print("MD Simulation completed. ")
@@ -149,7 +240,7 @@ class AutoRunMD :
     def run_app(self, inpdb, outname, mode="solvated",
                 ff="amber99sb-ildn", production_run=True,
                 preparation=False,
-                gpu_ids="1", nt=4, sol_index=13, restraints=False):
+                gpu_ids="", nt=4, sol_index=13, restraints=False, nsteps=100):
         """
         Run the simulation, the final step after data preparation.
 
@@ -188,7 +279,7 @@ class AutoRunMD :
 
             if production_run:
                 self.md("em_"+outname, outgro="npt_"+outname, nptmdp=npt_mdp,
-                        gpu_ids=gpu_ids, nt=nt, restraints=restraints)
+                        gpu_ids=gpu_ids, nt=nt, restraints=restraints, nsteps=nsteps)
  
         elif mode == "gbsa":
             self.generate_top(inpdb, outgro=outname, top="topol", ff=ff)
@@ -197,7 +288,7 @@ class AutoRunMD :
 
             if production_run:
                 mdp = os.path.join(self.PROJECT_ROOT, "data/gbsa.mdp")
-                self.md("em_"+outname, outgro="npt_"+outname, nptmdp=mdp, gpu_ids=gpu_ids, nt=nt)
+                self.md("em_"+outname, outgro="npt_"+outname, nptmdp=mdp, gpu_ids=gpu_ids, nt=nt, nsteps=nsteps)
 
         return self
 
@@ -235,7 +326,7 @@ if __name__ == "__main__":
                         help="Input, str, optional. Force field type, default is amber99sb-ildn. \n"
                              "Options: amber99sb, amber99sb-ildn, amber12sb, amber14sb and so on. ")
     parser.add_argument("-nt", default=4, type=int, help="Input, int, optional. Number of CPU cores to use.")
-    parser.add_argument("-gpuids", default="1", type=str,
+    parser.add_argument("-gpuids", default="", type=str,
                         help="Input, str, optional. The gpu ids to use in the simulation. \n"
                              "Example: 1,0 or 0,1,2,3 or 4")
     parser.add_argument("-SOL_index", default=13, type=int,
