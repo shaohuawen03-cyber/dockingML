@@ -1,0 +1,73 @@
+# =============================================================================
+# dockingML Docker Compose 配置
+# =============================================================================
+# 用法:
+#   1. 构建并进入容器:  docker-compose run --rm dockingml bash
+#   2. 运行测试:        docker-compose run --rm dockingml pytest tests/ -v
+#   3. 运行 GUI:        docker-compose run --rm -e DISPLAY=$DISPLAY dockingml python3 src/main.py
+#   4. 运行完整流程:    docker-compose run --rm dockingml python test_full_pipeline.py
+# =============================================================================
+
+version: "3.8"
+
+services:
+  # ---- 基础版 (不含深度学习) ----
+  dockingml:
+    build:
+      context: .
+      target: base
+    image: dockingml:latest
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    environment:
+      - PYTHONUNBUFFERED=1
+    # 如有 NVIDIA GPU, 取消下方注释:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # ---- 完整版 (含深度学习依赖) ----
+  dockingml-full:
+    build:
+      context: .
+      target: full
+    image: dockingml:full
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  # ---- 运行测试 ----
+  test:
+    build:
+      context: .
+      target: base
+    image: dockingml:latest
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: ["-c", "pytest tests/ -v --tb=short"]
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  # ---- GUI (需要 X11 转发) ----
+  gui:
+    build:
+      context: .
+      target: base
+    image: dockingml:latest
+    volumes:
+      - .:/workspace
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    working_dir: /workspace
+    command: ["-c", "python3 src/main.py"]
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_QPA_PLATFORM=xcb
+    network_mode: host

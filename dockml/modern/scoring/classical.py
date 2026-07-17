@@ -95,7 +95,10 @@ class ClassicalRescorer:
             raise ValueError(f"Unknown classifier {name}")
         else:  # regress
             if name == "rf":
-                return RandomForestRegressor(n_estimators=500, n_jobs=-1, random_state=42, **kw)
+                return RandomForestRegressor(
+                    n_estimators=kw.pop("n_estimators", 500),
+                    n_jobs=kw.pop("n_jobs", -1),
+                    random_state=42, **kw)
             if name == "ridge":
                 return Ridge(alpha=1.0, **kw)
             if name == "xgb":
