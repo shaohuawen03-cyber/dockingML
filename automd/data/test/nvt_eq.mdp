@@ -1,0 +1,34 @@
+; Test NVT equilibration - 100 steps (restrained)
+; Used by dockingML test suite for quick validation
+integrator               = md
+dt                       = 0.002
+nsteps                   = 100
+nstxout                  = 0
+nstvout                  = 0
+nstfout                  = 0
+nstenergy                = 10
+nstlog                   = 10
+continuation             = no
+constraint_algorithm     = lincs
+constraints              = h-bonds
+lincs_iter               = 2
+lincs_order              = 4
+cutoff-scheme            = Verlet
+nstlist                  = 20
+ns_type                  = grid
+rlist                    = 1.0
+rcoulomb                 = 1.0
+pme_order                = 4
+fourierspacing           = 0.12
+DispCorr                 = EnerPres
+Tcoupl                   = V-rescale
+tc-grps                  = System
+tau_t                    = 0.1
+ref_t                    = 300
+Pcoupl                   = no
+gen_vel                  = yes
+gen_temp                 = 300
+gen_seed                 = -1
+define                   = -DPOSRES -DPOSRES_LIG
+nstcomm                  = 10
+comm-mode                = Linear

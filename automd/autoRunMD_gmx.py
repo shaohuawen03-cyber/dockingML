@@ -7,6 +7,16 @@ from argparse import RawDescriptionHelpFormatter
 
 
 class AutoRunMD :
+    """AutoRunMD supports docking -> dynamics assembly.
+
+    The docking module (dockml/) provides docking results which can
+    be fed into this MD workflow. The pipeline is:
+
+        dockml/dock.py  (docking)  ->  complex.pdb  ->  AutoRunMD
+
+    This ensures the docking part is not deleted and is assembled
+    with dynamics for complex testing.
+    """
 
     def __init__(self):
         self.top = ""
