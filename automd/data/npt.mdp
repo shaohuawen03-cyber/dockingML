@@ -14,7 +14,7 @@ lincs_order         =  4
 ; Integrator
 integrator          =  md
 dt                  =  0.002     ; ps (2 fs)
-nsteps              =  50000000  ; 100 ns by default; override in runner
+nsteps              =  100       ; short CPU-safe default; override for production
 ; Output control
 nstcomm             =  100
 comm-mode           =  Angular

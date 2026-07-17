@@ -2,7 +2,7 @@
 title               = NVT equilibration (restrained)
 integrator          = md
 dt                  = 0.002
-nsteps              = 250000    ; 500 ps
+nsteps              = 100       ; short CPU-safe default; override for production
 constraints         = h-bonds
 constraint_algorithm = lincs
 lincs_iter          = 2
