@@ -61,7 +61,7 @@ def _safe_element(symbol: str) -> str:
     s = symbol.strip().capitalize()
     if len(s) == 2 and s[1].isupper():
         s = s[0] + s[1].lower()
-    return s if s[0].isalpha() else "Du"
+    return s if (s and s[0].isalpha()) else "Du"
 
 
 # ---------------------------------------------------------------------------

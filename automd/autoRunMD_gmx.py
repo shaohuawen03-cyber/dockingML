@@ -48,7 +48,7 @@ class AutoRunMD :
 
     def modify_mdp(self, inmdp, outmdp, parameters):
 
-        tofile = open(outmdp, 'wb')
+        tofile = open(outmdp, 'w')
         with open(inmdp) as lines :
             for s in lines :
                 if len(s.split()) > 0 and s[0] != ";" :
