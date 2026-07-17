@@ -17,6 +17,36 @@ virtual screening.
 
 ---
 
+## 🖥️ GROMACS Graphical User Interface (GROMACS-GUI)
+
+A Python & PyQt6 Graphical User Interface (GUI) tool for GROMACS molecular dynamics simulation setup, execution, parameter editing, and visualization.
+
+### Quick Start
+
+Launch the GUI on Windows or Linux:
+
+**Windows:**
+```cmd
+run.bat
+```
+
+**Linux / macOS:**
+```bash
+python3 src/main.py
+# or
+./run.sh
+```
+
+### Features
+1. **Ligand Simulator:** Complete protein-ligand complex setup, receptor processing (`pdb2gmx`), topology merge (`complex.gro` & `topol.top`), solvation, neutralization (`genion`), and workflow execution.
+2. **Solution Simulator:** Solution system topology creation, water box setup, solvation, and step-by-step EM / NVT / NPT / Production MD.
+3. **Visual MDP Parameter Editor:** Graphical parameter editor for `integrator`, `nsteps`, `emtol`, temperature & pressure coupling, and constraints.
+4. **Trajectory Analysis & Charting:** Interactive Matplotlib plotting for RMSD, RMSF, Gyrate, and Energy, plus PBC removal (`trjconv`).
+5. **External Tool Launcher:** Integration with VMD, PyMOL, and UCSF Chimera.
+6. **Modules in Development (WIP):** Membrane Protein Simulator and Polymer Simulator.
+
+---
+
 ## Installation
 
 ```bash
@@ -54,6 +84,13 @@ Legacy scripts still work; the original v1 API is preserved.
 
 ```
 dockingML/
+├── run.bat                 # Windows GUI launcher
+├── run.sh                  # Linux / macOS GUI launcher
+├── requirements.txt        # Python GUI dependencies
+├── src/                    # GROMACS-GUI Application
+│   ├── main.py             # Main GUI application entry point
+│   ├── core/               # Backend GROMACS wrappers, MDP editor, analysis
+│   └── gui/                # PyQt6 GUI windows, tabs, dialogs, and widgets
 ├── dockml/                 # core docking & ML code (legacy v1)
 │   └── modern/             # v2 pipeline
 │       ├── docking.py      # wrappers for Vina / Smina / GNINA / QVina / Vina-CUDA / AD-GPU
