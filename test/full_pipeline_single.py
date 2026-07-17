@@ -22,16 +22,17 @@ def run_single_md():
     print("=" * 80)
 
     # Check input
-    if not INPUT_PDB.exists():
-        print(f"✗ Input protein PDB missing: {INPUT_PDB}")
+    input_pdb = INPUT_PDB
+    if not input_pdb.exists():
+        print(f"✗ Input protein PDB missing: {input_pdb}")
         # Try to use complex protein part or default
         alt = PROJECT_ROOT / "automd" / "examples" / "10gs" / "10gs_protein.pdb"
         if alt.exists():
-            INPUT_PDB = alt
+            input_pdb = alt
         else:
             print("✗ No alternative protein PDB found.")
             return False
-    print(f"✓ Input: {INPUT_PDB}")
+    print(f"✓ Input: {input_pdb}")
 
     # Reference to MDP files
     prod_data = PROJECT_ROOT / "automd" / "data" / "production"
