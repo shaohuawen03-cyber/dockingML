@@ -25,13 +25,14 @@ def run_complex_md():
     print("=" * 80)
 
     # Check docking result
-    if DOCKING_RESULT.exists():
-        print(f"✓ Best docking result available: {DOCKING_RESULT}")
+    docking_result = DOCKING_RESULT
+    if docking_result.exists():
+        print(f"✓ Best docking result available: {docking_result}")
     else:
         # Try to use complex PDB directly (if docking hasn't been run yet)
         if COMPLEX_PDB.exists():
             print(f"✓ Using complex PDB directly (docking result not found): {COMPLEX_PDB}")
-            DOCKING_RESULT = COMPLEX_PDB
+            docking_result = COMPLEX_PDB
         else:
             print(f"✗ No complex input available.")
             return False
