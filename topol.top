@@ -1,0 +1,54 @@
+;
+;	File '/home/w26/dockingML-arena-019f7078-dockingml/topol.top' was generated
+;	By user: unknown (1000)
+;	On host: LAPTOP-R77M5D6M
+;	At date: Fri Jul 17 23:36:47 2026
+;
+;	This is a standalone topology file
+;
+;	Created by:
+;	              :-) GROMACS - gmx pdb2gmx, 2025.4-conda_forge (-:
+;	
+;	Executable:   /home/w26/miniconda3/bin.AVX2_256/gmx
+;	Data prefix:  /home/w26/miniconda3
+;	Working dir:  /home/w26/dockingML-arena-019f7078-dockingml
+;	Command line:
+;	  gmx pdb2gmx -f /home/w26/dockingML-arena-019f7078-dockingml/test/input.pdb -o /home/w26/dockingML-arena-019f7078-dockingml/receptor.gro -p /home/w26/dockingML-arena-019f7078-dockingml/topol.top -ff amber99sb-ildn -water tip3p -ignh
+;	Force field was read from the standard GROMACS share directory.
+;
+
+; Include forcefield parameters
+#include "amber99sb-ildn.ff/forcefield.itp"
+
+; Include ligand topology
+#include "BEN.itp"
+
+; Include chain topologies
+#include "topol_DNA_chain_C.itp"
+#include "topol_DNA_chain_D.itp"
+
+; Include water topology
+#include "amber99sb-ildn.ff/tip3p.itp"
+
+#ifdef POSRES_WATER
+; Position restraint for each water oxygen
+[ position_restraints ]
+;  i funct       fcx        fcy        fcz
+   1    1       1000       1000       1000
+#endif
+
+; Include topology for ions
+#include "amber99sb-ildn.ff/ions.itp"
+
+[ system ]
+; Name
+Protein in water
+
+[ molecules ]
+; Compound        #mols
+DNA_chain_C         1
+DNA_chain_D         1
+BEN             1
+SOL         97781
+NA               310
+CL               272

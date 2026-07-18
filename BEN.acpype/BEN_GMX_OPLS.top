@@ -1,0 +1,19 @@
+; BEN_GMX_OPLS.top created by acpype (v: 2023.10.27) on Fri Jul 17 23:24:10 2026
+
+; Include forcefield parameters
+#include "ffoplsaa.itp"
+
+; Include BEN_GMX.itp topology
+#include "BEN_GMX.itp"
+
+; Ligand position restraints
+#ifdef POSRES_LIG
+#include "posre_BEN.itp"
+#endif
+
+[ system ]
+ BEN
+
+[ molecules ]
+; Compound        nmols
+ BEN              1     

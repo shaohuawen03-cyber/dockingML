@@ -1,0 +1,40 @@
+; NVT Simulation Stage
+; Generated on GROMACS-GUI
+
+; --- Run Control ---
+title                     = NVT Equilibration
+integrator                = md
+dt                        = 0.002
+nsteps                    = 100
+
+; --- Output Control ---
+nstxout-compressed        = 5000
+nstenergy                 = 5000
+nstlog                    = 5000
+
+; --- Neighbor Searching & Electrostatics ---
+cutoff-scheme             = Verlet
+nstlist                   = 20
+coulombtype               = PME
+rcoulomb                  = 1.0
+rvdw                      = 1.0
+pme_order                 = 4
+fourierspacing            = 0.12
+
+; --- Temperature Coupling ---
+Tcoupl                    = V-rescale
+tc-grps                   = DNA UNL Water_and_ions
+tau_t                     = 0.1 0.1 0.1
+ref_t                     = 300 300 300
+
+; --- Pressure Coupling ---
+Pcoupl                    = no
+
+; --- Constraints & Velocity Generation ---
+continuation              = no
+constraint_algorithm      = lincs
+constraints               = h-bonds
+gen_vel                   = yes
+gen_temp                  = 300
+gen_seed                  = -1
+define                    = -DPOSRES

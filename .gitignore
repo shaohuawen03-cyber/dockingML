@@ -1,4 +1,49 @@
-*.pyc
-.DS_Store
+# ===== GROMACS 备份文件(以 # 开头结尾)=====
+\#*\#
+*~
+
+# ===== GROMACS 输出文件 =====
+*.trr
+*.xtc
+*.edr
+*.cpt
+*.tpr
+*.log
+*.gro
+mdout.mdp
+
+# ===== 保留原始输入文件(如果需要)=====
+# 如果你想保留特定的 .gro 或 .mdp,用 ! 例外
+!em.mdp
+!nvt.mdp
+!npt.mdp
+!md.mdp
+
+# ===== AmberTools/acpype 中间文件 =====
+BEN.acpype/ANTECHAMBER_*
+BEN.acpype/ATOMTYPE.INF
+BEN.acpype/sqm.*
+BEN.acpype/leap.log
+BEN.acpype/acpype.log
+BEN.acpype/*.frcmod
+BEN.acpype/*.inpcrd
+BEN.acpype/*.prmtop
+BEN.acpype/*.lib
+BEN.acpype/*.pkl
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.pyo
+.ipynb_checkpoints/
+*.egg-info/
+
+# ===== 编辑器 =====
+.vscode/
 .idea/
-.idea/*
+*.swp
+.DS_Store
+
+# ===== 大文件二进制 =====
+*.pdb.bak
+*.pkl
